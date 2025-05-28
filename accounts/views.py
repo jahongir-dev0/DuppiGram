@@ -34,7 +34,7 @@ def signin_view(request):
             login(request, user)
             return redirect("home")  # Tizimga kirgandan keyin bosh sahifaga o'tkazish
         else:
-            messages.error(request, "Invalid username or password")
+            messages.error(request, "Hato Username yoki Parol")
 
     return render(request, "signin.html")
 
