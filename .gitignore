@@ -1,0 +1,62 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Environment
+.env
+*.env
+.venv/
+venv/
+ENV/
+env/
+Pipfile.lock
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node (agar frontend qismi bo‘lsa)
+node_modules/
+build/
+dist/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+
+# Test output
+junit.xml
+test-results/
+
+# MySQL / PostgreSQL backups
+*.sql
+
+# Others
+*.bak
+*.swp
