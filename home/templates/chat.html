@@ -1,0 +1,282 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+<!-- Chat -->
+<div class="chat chat-messages show" id="middle">
+    <div>
+        <div class="chat-header">
+            <div class="user-details">
+                <div class="d-xl-none">
+                    <a class="text-muted chat-close me-2" href="#">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="avatar avatar-lg {% if other_user.is_online %}online{% else %}offline{% endif %} flex-shrink-0">
+                    <img src="{{ other_user.get_profile_image }}" class="rounded-circle"
+                         alt="{{ other_user.username }}">
+                </div>
+                <div class="ms-2 overflow-hidden">
+                    <h6>{{ other_user.username }}</h6>
+                    <span class="last-seen">
+                {% if other_user.is_online %}
+                    Online
+                {% else %}
+                    Oxirgi ko‘rilgan: {{ other_user.last_seen|date:"d M H:i" }}
+                {% endif %}
+            </span>
+                </div>
+            </div>
+            <div class="chat-options">
+                <ul>
+                    <li>
+                        <a href="javascript:void(0)" class="btn chat-search-btn" data-bs-toggle="tooltip"
+                           data-bs-placement="bottom" title="Search">
+                            <i class="ti ti-search"></i>
+                        </a>
+                    </li>
+                    <li data-bs-toggle="tooltip" data-bs-placement="bottom" title="Video Call">
+                        <a href="javascript:void(0)" class="btn" data-bs-toggle="modal" data-bs-target="#video-call">
+                            <i class="ti ti-video"></i>
+                        </a>
+                    </li>
+                    <li data-bs-toggle="tooltip" data-bs-placement="bottom" title="Voice Call">
+                        <a href="javascript:void(0)" class="btn" data-bs-toggle="modal" data-bs-target="#voice_call">
+                            <i class="ti ti-phone"></i>
+                        </a>
+                    </li>
+                    <li title="Contact Info" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                        <a href="javascript:void(0)" class="btn" data-bs-toggle="offcanvas"
+                           data-bs-target="#contact-profile">
+                            <i class="ti ti-info-circle"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn no-bg" href="#" data-bs-toggle="dropdown">
+                            <i class="ti ti-dots-vertical"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end p-3">
+                            <li><a href="{% url 'home' %}" class="dropdown-item"><i class="ti ti-x me-2"></i>Chatni
+                                yopish</a></li>
+                            <li><a href="#" class="dropdown-item" data-bs-toggle="modal"
+                                   data-bs-target="#mute-notification"><i class="ti ti-volume-off me-2"></i>Bildirishni
+                                o‘chirish</a></li>
+                            <li><a href="#" class="dropdown-item" data-bs-toggle="modal"
+                                   data-bs-target="#clear-chat"><i class="ti ti-clear-all me-2"></i>Chatni tozalash</a>
+                            </li>
+                            <li><a href="#" class="dropdown-item" data-bs-toggle="modal"
+                                   data-bs-target="#delete-chat"><i class="ti ti-trash me-2"></i>Chatni o‘chirish</a>
+                            </li>
+                            <li><a href="#" class="dropdown-item" data-bs-toggle="modal"
+                                   data-bs-target="#block-user"><i class="ti ti-ban me-2"></i>Bloklash</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="chat-body chat-page-group slimscroll">
+            <div class="messages">
+                {% for message in messages %}
+                <div class="chats {% if message.sender == request.user %}chats-right{% endif %}">
+<!--                    {% if message.sender != request.user %}-->
+<!--                    <div class="chat-avatar">-->
+<!--                        <img src="{{ message.sender.get_profile_image }}" class="rounded-circle"-->
+<!--                             alt="{{ message.sender.username }}">-->
+<!--                    </div>-->
+<!--                    {% endif %}-->
+                    <div class="chat-content">
+                        <div class="chat-profile-name {% if message.sender == request.user %}text-end{% endif %}">
+                            <h6>
+<!--                                {% if message.sender == request.user %}-->
+<!--                                You-->
+<!--                                {% else %}-->
+<!--                                {{ message.sender.username }}-->
+<!--                                {% endif %}-->
+                                <i class="ti ti-circle-filled fs-7 mx-2"></i>
+                                <span class="chat-time">{{ message.timestamp|date:"H:i" }}</span>
+                                <span class="msg-read success"><i class="ti ti-checks"></i></span>
+                            </h6>
+                        </div>
+                        <div class="chat-info">
+                            <div class="message-content">
+                                {{ message.text }}
+                            </div>
+                            <div class="chat-actions">
+                                <a href="#" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end p-3">
+                                    <li>
+                                        <a class="dropdown-item reply-btn" href="#"><i
+                                                class="ti ti-corner-up-left me-2"></i>Reply</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#"><i class="ti ti-file-export me-2"></i>Copy</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                           data-bs-target="#message-delete-{{ message.id }}">
+                                            <i class="ti ti-trash me-2"></i> Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+<!--                    {% if message.sender == request.user %}-->
+<!--                    <div class="chat-avatar">-->
+<!--                        <img src="{{ message.sender.get_profile_image }}" class="rounded-circle dreams_chat">-->
+<!--                    </div>-->
+<!--                    {% endif %}-->
+                </div>
+                <div class="modal fade" id="message-delete-{{ message.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Xabarni o‘chirish</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Siz ushbu xabarni o‘chirishga ishonchingiz komilmi?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form method="POST" action="#">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">O‘chirish</button>
+                                </form>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="chat-footer">
+        <form class="footer-form" id="chat-form">
+            <div class="chats reply-chat reply-div d-none" id="reply-div">
+                <div class="chat-avatar">
+                    <img src="{% static 'assets/img/profiles/avatar-06.jpg' %}" class="rounded-circle" alt="image">
+                </div>
+                <div class="chat-content">
+                    <div class="chat-profile-name">
+                        <h6 id="reply-username">Edward Lietz<i class="ti ti-circle-filled fs-7 mx-2"></i>
+                            <span class="chat-time" id="reply-time">02:39 PM</span>
+                            <span class="msg-read success"><i class="ti ti-checks"></i></span>
+                        </h6>
+                    </div>
+                    <div class="chat-info">
+                        <div class="message-content">
+                            <div class="message-reply reply-content" id="reply-text">
+                                Thank you for your support
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="close-reply" id="close-reply">
+                    <i class="ti ti-x"></i>
+                </a>
+            </div>
+
+            <div class="chat-footer-wrap">
+                <div class="form-item">
+                    <a href="#" class="action-circle"><i class="ti ti-microphone"></i></a>
+                </div>
+                <div class="form-wrap">
+                    <input type="text" class="form-control" id="chat-input" placeholder="Type Your Message">
+                </div>
+                <div class="form-item emoj-action-foot">
+                    <a href="#" class="action-circle" id="emoji-btn"><i class="ti ti-mood-smile"></i></a>
+                    <div class="emoj-group-list-foot down-emoji-circle d-none" id="emoji-list">
+                        <ul>
+                            {% for i in emoji_list %}
+                            <li>
+                                <a href="#" class="emoji-item"
+                                   data-emoji="{% static 'assets/img/icons/emonji-'|add:i|add:'.svg' %}">
+                                    <img src="{% static 'assets/img/icons/emonji-'|add:i|add:'.svg' %}" alt="Emoji">
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li class="add-emoj"><a href="#"><i class="ti ti-plus"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-item position-relative d-flex align-items-center justify-content-center">
+                    <label for="file-upload" class="action-circle file-action position-absolute">
+                        <i class="ti ti-folder"></i>
+                    </label>
+                    <input type="file" class="open-file position-relative d-none" name="files" id="file-upload">
+                </div>
+                <div class="form-item">
+                    <a href="#" data-bs-toggle="dropdown">
+                        <i class="ti ti-dots-vertical"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-3">
+                        <a href="#" class="dropdown-item"><i class="ti ti-camera-selfie me-2"></i>Camera</a>
+                        <a href="#" class="dropdown-item"><i class="ti ti-photo-up me-2"></i>Gallery</a>
+                        <a href="#" class="dropdown-item"><i class="ti ti-music me-2"></i>Audio</a>
+                        <a href="#" class="dropdown-item"><i class="ti ti-map-pin-share me-2"></i>Location</a>
+                        <a href="#" class="dropdown-item"><i class="ti ti-user-check me-2"></i>Contact</a>
+                    </div>
+                </div>
+                <div class="form-btn">
+                    <button class="btn btn-primary" type="submit" id="send-btn">
+                        <i class="ti ti-send"></i>
+                    </button>
+                </div>
+            </div>
+            <script>
+                document.getElementById("chat-form").addEventListener("submit", function (e) {
+                e.preventDefault();  // Prevent form from reloading page
+                sendMessage();       // Call your send function
+                });
+            </script>
+        </form>
+    </div>
+    <script>
+        const chatId = {{ chat_room.id }};
+        const userId = {{ request.user.id }};
+        const socket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + chatId + '/'
+        );
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const messageDiv = document.createElement('div');
+            const isOwn = data.sender_id === userId;
+
+            messageDiv.classList.add('chats');
+            if (isOwn) messageDiv.classList.add('chats-right');
+
+            messageDiv.innerHTML = `
+                <div class="chat-content">
+                    <div class="chat-profile-name ${isOwn ? 'text-end' : ''}">
+                        <h6>${isOwn ? 'You' : data.sender_username}
+                            <i class="ti ti-circle-filled fs-7 mx-2"></i>
+                            <span class="chat-time">${data.timestamp}</span>
+                        </h6>
+                    </div>
+                    <div class="chat-info">
+                        <div class="message-content">${data.message}</div>
+                    </div>
+                </div>
+            `;
+            document.querySelector(".messages").appendChild(messageDiv);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("chat-input");
+            const message = input.value;
+            if (message.trim() === "") return;
+
+            socket.send(JSON.stringify({
+                message: message,
+                sender_id: userId
+            }));
+            input.value = "";
+        }
+    </script>
+</div>
+<!-- /Chat -->
+{% endblock %}
